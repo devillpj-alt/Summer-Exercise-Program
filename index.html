@@ -451,10 +451,11 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
     <div id="page-runs" class="page">
       <div class="card-sm" style="margin-bottom:14px">
         <div class="section-label" style="margin:0 0 8px">Your pace targets</div>
-        <div class="pace-row"><span class="pace-type">Easy / Zone 2</span><span class="pace-val">10:00–10:30 /mi</span></div>
-        <div class="pace-row"><span class="pace-type">Tempo / HM effort</span><span class="pace-val">~9:00 /mi</span></div>
-        <div class="pace-row"><span class="pace-type">5K / Intervals</span><span class="pace-val">8:15–8:30 /mi</span></div>
-        <div class="pace-row"><span class="pace-type">Long run</span><span class="pace-val">Easy pace always</span></div>
+        <div class="pace-row"><span class="pace-type">Easy / Zone 2</span><span class="pace-val">8:45–9:15 /mi</span></div>
+        <div class="pace-row"><span class="pace-type">Tempo</span><span class="pace-val">~8:30–8:45 /mi</span></div>
+        <div class="pace-row"><span class="pace-type">10K / Intervals</span><span class="pace-val">7:50–8:10 /mi</span></div>
+        <div class="pace-row"><span class="pace-type">Long run</span><span class="pace-val">9:00–9:30 /mi easy</span></div>
+        <div class="pace-row"><span class="pace-type">HR zones (Karvonen)</span><span class="pace-val">Zone 2: 121–133 · Tempo: 133–145 · Intervals: 145–156</span></div>
       </div>
       <div id="run-list"></div>
     </div>
@@ -570,31 +571,35 @@ const WEEK_ROUNDS = [4,4,5,5,6,6];
 const HIGH_REPS = [false,true,false,true,false,true];
 
 const RUNS = [
-  {wk:1,tue:'Easy 3–4 mi · Zone 2 (~10:00–10:30/mi)',thu:'6 × 400m @ hard effort, 90 sec rest between',sat:'Long run — 5 mi easy',notes:'~11–12 mi total — step back week as lifting starts'},
-  {wk:2,tue:'Easy 4 mi · Zone 2',thu:'4 × 1 mi @ 10K effort, 2 min rest',sat:'Long run — 5–6 mi easy',notes:'~13–14 mi total'},
-  {wk:3,tue:'Easy 4 mi · Zone 2',thu:'Fartlek — 30 sec hard / 1 min easy × 12 rounds',sat:'Long run — 6 mi easy',notes:'~14–15 mi — circuits go to 5 rounds, keep runs moderate'},
-  {wk:4,tue:'Easy 4–5 mi · Zone 2',thu:'3 × 1.5 mi @ 10K effort, 2 min rest',sat:'Long run — 7 mi easy',notes:'~16–17 mi — strongest week'},
-  {wk:5,tue:'Easy 4 mi · Zone 2',thu:'Progression run — start easy, build to tempo by last mile',sat:'Long run — 6 mi easy',notes:'Long run drops slightly — circuits hit 6 rounds'},
-  {wk:6,tue:'Easy 4 mi · Zone 2',thu:'3 mi @ 10K race pace — short, fast, done',sat:'Long run — 8 mi easy',notes:'~15 mi — peak long run, finish the program strong'},
+  {wk:1,mon:'Easy 3–5 mi · flat route · run first before circuit',tue:'Easy 3–4 mi · Zone 2',thu:'6 × 400m @ hard effort, 90 sec rest between',sat:'Long run — 5 mi easy',notes:'~14–17 mi total with Monday addition — step back week as lifting starts'},
+  {wk:2,mon:'Easy 3–5 mi · flat route · run first before circuit',tue:'Easy 4 mi · Zone 2',thu:'4 × 1 mi @ 10K effort, 2 min rest',sat:'Long run — 5–6 mi easy',notes:'~16–18 mi total'},
+  {wk:3,mon:'Easy 3–5 mi · flat route · run first before circuit',tue:'Easy 4 mi · Zone 2',thu:'Fartlek — 2 blocks of 12 × 1 min hard / 1 min easy, full rest between',sat:'Long run — 6 mi easy',notes:'~17–19 mi — circuits go to 5 rounds, keep runs moderate'},
+  {wk:4,mon:'Easy 3–5 mi · flat route · run first before circuit',tue:'Easy 4–5 mi · Zone 2',thu:'3 × 1.5 mi @ 10K effort, 2 min rest',sat:'Long run — 7 mi easy',notes:'~19–21 mi — strongest week'},
+  {wk:5,mon:'Easy 3–5 mi · flat route · run first before circuit',tue:'Easy 4 mi · Zone 2',thu:'Progression run — start easy, build to tempo by last mile',sat:'Long run — 6 mi easy',notes:'Long run drops slightly — circuits hit 6 rounds'},
+  {wk:6,mon:'Easy 3–5 mi · flat route · run first before circuit',tue:'Easy 4 mi · Zone 2',thu:'3 mi @ 10K race pace — short, fast, done',sat:'Long run — 8 mi easy',notes:'~18–21 mi — peak long run, finish the program strong'},
 ];
 
 const TIPS = [
-  'Renegade row too hard? Widen your feet — wider stance dramatically improves rotational stability.',
-  'Protein target: 185–200g daily. Track it for the first 2 weeks so you know you\'re hitting it.',
-  'Easy runs should be easy. If you can\'t hold a full conversation, slow down.',
-  'The scale may go up 1–2 lbs in week 1 from muscle inflammation. Don\'t react to it.',
-  'Week 3–4 is the grind. Sleep is the most important variable in the program right now.',
+  'Renegade row too hard? Widen feet and drop weight — stance width fixes rotation more than anything.',
+  'Protein target: 185-200g daily. Shake with Fairlife milk and eggs gets you 50g before 9am.',
+  'Monday double day: always run first, circuit second. Circuits load the Achilles.',
+  'Scale may go up 1-2 lbs in early weeks from inflammation. Watch the 3-week trend.',
+  'Week 3-4 is the grind — circuits hit 5 rounds and mileage peaks. Sleep is most important.',
   'Increase weight when you finish all rounds with 2+ reps clearly left in the tank.',
-  'On long run days, add 150–200 extra calories from carbs — oats, banana, or sweet potato.',
-  '10 minutes of mobility work after every session is what keeps you training injury-free.',
-  'Don\'t under-eat on run + lift days. It stalls fat loss and costs you muscle.',
-  'Your easy run pace will improve by week 4 without trying — you\'ll notice it on Monday easy runs.',
-  'Realistic fat loss over 6 weeks at your calorie targets: 8–12 lbs if nutrition is consistent.',
-  'The dumbbell swing should be explosive — power from the hips, not the arms.',
-];
+  'Long run and double days: eat 2,700-2,750 calories. Saturday is your highest calorie day.',
+  'Dumbbell swing: 23 lbs x 25 reps explosive beats 25 lbs x 15 reps slow every time.',
+  'Calorie targets: circuit only 2,300-2,400 — run day 2,500 — double day 2,700 — rest 2,000.',
+  'Circuit HR ceiling around 114-120 avg due to 25 lb equipment limit. Running is your cardio driver.',
+  'Achilles tight after a double day? Calf stretch 60 sec each side before bed.',
+  'Intervals at ACHS: 2 lap warmup, dynamic stretching, 2-3 strides before rep 1.',
+  'Morning workouts: start by 7am to beat Alexandria summer heat and humidity.',
+  'Pre-hydrate the night before run days — 16 oz before bed, 16 oz on waking.',
+  'Dumbbell swing: hip snap sends the weight up — arms just connect hip to dumbbell.',
+  'Fartlek this week: 2 blocks of 12 x 1 min hard / 1 min easy, full rest between blocks.',
+]
 
 const DAY_SCHEDULE = {
-  1:'Circuit 1', 2:'Run (easy)', 3:'Circuit 2',
+  1:'Run + Circuit 1', 2:'Run (easy)', 3:'Circuit 2',
   4:'Run (structured)', 5:'Circuit 3', 6:'Run (long)', 0:'Circuit 4'
 };
 
@@ -627,6 +632,7 @@ const PRELOADED = {
     'run_w1_tue': { miles: '4.01', pace: '8:49' },
     'run_w1_thu': { miles: '4.0',  pace: '8:40' },
     'run_w1_sat': { miles: '6.01', pace: '9:03' },
+    'run_w2_mon': { miles: '4.01', pace: '9:06' },
   },
 };
 
@@ -714,6 +720,19 @@ function renderToday() {
     sub = 'Saturday · Easy pace · Week ' + (wk+1);
     content = '<div style="font-size:14px;color:var(--text);font-weight:500;margin-bottom:6px">'+r.sat+'</div>'
       +'<div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:8px">Easy throughout · fuel from mile 4 onward</div>';
+  } else if (sched === 'Run + Circuit 1') {
+    const r = RUNS[wk];
+    title = 'Run + Circuit 1';
+    sub = 'Monday · Double day · Week ' + (wk+1);
+    content = '<div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px">Run first — ' + r.mon + '</div>'
+      +'<div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:12px">Then Circuit 1 after — always in this order</div>';
+    const key = 'w'+wk+'c0';
+    const done = S.completedCircuits[key];
+    if (done) {
+      content += '<div class="done-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Circuit 1 marked complete</div>';
+    } else {
+      content += '<button class="btn-primary" onclick="quickDone('+wk+',0)">Mark Circuit 1 complete</button>';
+    }
   } else {
     const cNum = parseInt(sched.replace('Circuit ','')) - 1;
     const key = 'w'+wk+'c'+cNum;
@@ -813,6 +832,7 @@ function renderRuns() {
   let html = '';
   RUNS.forEach((r, wi) => {
     const sessions = [
+      {label:'Mon — easy run (before circuit)', desc:r.mon, key:'run_w'+wi+'_mon'},
       {label:'Tue — easy run', desc:r.tue, key:'run_w'+wi+'_tue'},
       {label:'Thu — structured run', desc:r.thu, key:'run_w'+wi+'_thu'},
       {label:'Sat — long run', desc:r.sat, key:'run_w'+wi+'_sat'},
