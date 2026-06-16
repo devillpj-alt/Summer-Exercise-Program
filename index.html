@@ -461,6 +461,25 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
 
     <!-- PROGRESS -->
     <div id="page-progress" class="page">
+      <div class="section-label">Data backup</div>
+      <div class="card" style="padding:14px 16px;margin-bottom:12px">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.6">Export your data before updating the app. Paste it back in after updating to restore everything.</div>
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <button class="wlog-btn" style="flex:1;background:var(--bg4);border:0.5px solid var(--border2);color:var(--text);border-radius:10px" onclick="exportData()">Export</button>
+          <button class="wlog-btn" style="flex:1;background:var(--bg4);border:0.5px solid var(--border2);color:var(--text);border-radius:10px" onclick="showImport()">Import</button>
+        </div>
+        <div id="export-area" style="display:none">
+          <textarea id="export-text" style="width:100%;height:100px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:11px;padding:8px;resize:none;margin-bottom:8px" readonly></textarea>
+          <button class="wlog-btn" style="width:100%;background:var(--accent2);color:#fff;border:none;border-radius:10px" onclick="copyExport()">Copy to clipboard</button>
+          <div id="copy-confirm" style="font-size:11px;color:var(--green);font-family:var(--mono);margin-top:6px;display:none">Copied — paste into Notes app or email to yourself to save</div>
+        </div>
+        <div id="import-area" style="display:none">
+          <textarea id="import-text" placeholder="Paste your exported data here..." style="width:100%;height:100px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:11px;padding:8px;resize:none;margin-bottom:8px"></textarea>
+          <button class="wlog-btn" style="width:100%;background:var(--accent2);color:#fff;border:none;border-radius:10px" onclick="importData()">Restore data</button>
+          <div id="import-confirm" style="font-size:11px;color:var(--green);font-family:var(--mono);margin-top:6px;display:none"></div>
+        </div>
+      </div>
+
       <div class="section-label">Body weight</div>
       <div class="wlog-row">
         <input class="wlog-input" type="number" id="weight-input" placeholder="lbs" step="0.1" inputmode="decimal" aria-label="Body weight in pounds">
@@ -551,12 +570,12 @@ const WEEK_ROUNDS = [4,4,5,5,6,6];
 const HIGH_REPS = [false,true,false,true,false,true];
 
 const RUNS = [
-  {wk:1,mon:'Easy 4–5 mi · Zone 2 (~10:00–10:30/mi)',tue:'8 × 400m at 5K effort (~8:15–8:30/mi), 90 sec rest',thu:'4 × 1 mi at HM effort (~9:00/mi), 90 sec rest',sat:'Long run — 6 mi easy'},
-  {wk:2,mon:'Easy 4 mi · Zone 2',tue:'4 × 1 mi at HM effort (~9:00/mi), 90 sec rest',thu:'Fartlek — 1 min hard / 1 min easy × 12 rounds',sat:'Long run — 7 mi easy'},
-  {wk:3,mon:'Easy 4–5 mi · Zone 2',tue:'Fartlek — 1 min hard / 1 min easy × 15 rounds',thu:'3 × 2 mi at HM effort (~9:00/mi), 2 min rest',sat:'Long run — 7–8 mi easy'},
-  {wk:4,mon:'Easy 5 mi · Zone 2',tue:'3 × 2 mi at HM effort (~9:00/mi), 2 min rest',thu:'Progression — miles 1–2 easy · 3–4 tempo · 5 at 10K effort',sat:'Long run — 9 mi easy'},
-  {wk:5,mon:'Easy 4 mi · Zone 2',tue:'Progression — miles 1–2 easy · 3–4 tempo · 5 at 10K effort',thu:'3 mi sharpener at HM goal pace (~9:00/mi)',sat:'Long run — 7 mi easy'},
-  {wk:6,mon:'Easy 4 mi · Zone 2',tue:'3 mi at HM goal pace (~9:00/mi) — sharp and confident',thu:'Easy 3 mi · shake out the legs',sat:'Long run — 10 mi easy'},
+  {wk:1,tue:'Easy 3–4 mi · Zone 2 (~10:00–10:30/mi)',thu:'6 × 400m @ hard effort, 90 sec rest between',sat:'Long run — 5 mi easy',notes:'~11–12 mi total — step back week as lifting starts'},
+  {wk:2,tue:'Easy 4 mi · Zone 2',thu:'4 × 1 mi @ 10K effort, 2 min rest',sat:'Long run — 5–6 mi easy',notes:'~13–14 mi total'},
+  {wk:3,tue:'Easy 4 mi · Zone 2',thu:'Fartlek — 30 sec hard / 1 min easy × 12 rounds',sat:'Long run — 6 mi easy',notes:'~14–15 mi — circuits go to 5 rounds, keep runs moderate'},
+  {wk:4,tue:'Easy 4–5 mi · Zone 2',thu:'3 × 1.5 mi @ 10K effort, 2 min rest',sat:'Long run — 7 mi easy',notes:'~16–17 mi — strongest week'},
+  {wk:5,tue:'Easy 4 mi · Zone 2',thu:'Progression run — start easy, build to tempo by last mile',sat:'Long run — 6 mi easy',notes:'Long run drops slightly — circuits hit 6 rounds'},
+  {wk:6,tue:'Easy 4 mi · Zone 2',thu:'3 mi @ 10K race pace — short, fast, done',sat:'Long run — 8 mi easy',notes:'~15 mi — peak long run, finish the program strong'},
 ];
 
 const TIPS = [
@@ -575,8 +594,8 @@ const TIPS = [
 ];
 
 const DAY_SCHEDULE = {
-  1:'Run (easy)', 2:'Run (structured)', 3:'Circuit 1',
-  4:'Run (structured)', 5:'Circuit 2', 6:'Run (long)', 0:'Rest'
+  1:'Circuit 1', 2:'Run (easy)', 3:'Circuit 2',
+  4:'Run (structured)', 5:'Circuit 3', 6:'Run (long)', 0:'Circuit 4'
 };
 
 let S = {
@@ -588,15 +607,46 @@ let S = {
   runLog: {},
 };
 
+// Pre-loaded data as of Jun 15 2026
+const PRELOADED = {
+  completedCircuits: {
+    'w0c0': true, 'w0c1': true, 'w0c2': true, 'w0c3': true,
+    'w1c0': true, 'w1c1': true, 'w1c2': true, 'w1c3': true,
+    'w2c0': true,
+  },
+  weightLog: [
+    { date: 'Jun 4',  weight: 196.0 },
+    { date: 'Jun 5',  weight: 194.1 },
+    { date: 'Jun 8',  weight: 197.4 },
+    { date: 'Jun 15', weight: 197.6 },
+  ],
+  runLog: {
+    'run_w0_tue': { miles: '3.21', pace: '8:21' },
+    'run_w0_thu': { miles: '3.0',  pace: '8:21' },
+    'run_w0_sat': { miles: '5.01', pace: '9:29' },
+    'run_w1_tue': { miles: '4.01', pace: '8:49' },
+    'run_w1_thu': { miles: '4.0',  pace: '8:40' },
+    'run_w1_sat': { miles: '6.01', pace: '9:03' },
+  },
+};
+
 (function loadState() {
   try {
-    const raw = localStorage.getItem('exercise_v2');
-    if (raw) S = Object.assign(S, JSON.parse(raw));
-  } catch(e) {}
+    const raw = localStorage.getItem('exercise_v3');
+    if (raw) {
+      S = Object.assign(S, JSON.parse(raw));
+    } else {
+      // First install — load pre-loaded historical data
+      S = Object.assign(S, PRELOADED);
+      localStorage.setItem('exercise_v3', JSON.stringify(S));
+    }
+  } catch(e) {
+    S = Object.assign(S, PRELOADED);
+  }
 })();
 
 function save() {
-  try { localStorage.setItem('exercise_v2', JSON.stringify(S)); } catch(e) {}
+  try { localStorage.setItem('exercise_v3', JSON.stringify(S)); } catch(e) {}
 }
 
 function getCurrentWeek() {
@@ -647,25 +697,23 @@ function renderToday() {
     content = '<div class="tip" style="margin:0">Rest days are built into the program. Muscle repair happens during recovery, not during the workout itself.</div>';
   } else if (sched === 'Run (easy)') {
     const r = RUNS[wk];
-    title = 'Easy run day';
-    sub = 'Monday · Zone 2 · Week ' + (wk+1);
-    content = '<div style="font-size:14px;color:var(--text);font-weight:500;margin-bottom:6px">'+r.mon+'</div>'
-      +'<div style="font-size:11px;color:var(--text3);font-family:var(--mono)">Conversational pace · ~125–138 bpm</div>';
+    title = 'Easy run';
+    sub = 'Tuesday · Zone 2 · Week ' + (wk+1);
+    content = '<div style="font-size:14px;color:var(--text);font-weight:500;margin-bottom:6px">'+r.tue+'</div>'
+      +'<div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:8px">Conversational pace · ~125–138 bpm</div>'
+      +'<div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:4px">'+r.notes+'</div>';
   } else if (sched === 'Run (structured)') {
     const r = RUNS[wk];
-    const isThu = day === 4;
-    const workout = isThu ? r.thu : r.tue;
-    const dayLabel = isThu ? 'Thursday' : 'Tuesday';
     title = 'Structured run';
-    sub = dayLabel + ' · Quality session · Week ' + (wk+1);
-    content = '<div style="font-size:14px;color:var(--text);font-weight:500;margin-bottom:6px">'+workout+'</div>'
-      +'<div style="font-size:11px;color:var(--text3);font-family:var(--mono)">Warm up 5 min easy before starting intervals</div>';
+    sub = 'Thursday · Quality session · Week ' + (wk+1);
+    content = '<div style="font-size:14px;color:var(--text);font-weight:500;margin-bottom:6px">'+r.thu+'</div>'
+      +'<div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:8px">Warm up 5 min easy before starting</div>';
   } else if (sched === 'Run (long)') {
     const r = RUNS[wk];
-    title = 'Long run day';
+    title = 'Long run';
     sub = 'Saturday · Easy pace · Week ' + (wk+1);
     content = '<div style="font-size:14px;color:var(--text);font-weight:500;margin-bottom:6px">'+r.sat+'</div>'
-      +'<div style="font-size:11px;color:var(--text3);font-family:var(--mono)">Easy throughout · fuel from mile 4 onward</div>';
+      +'<div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:8px">Easy throughout · fuel from mile 4 onward</div>';
   } else {
     const cNum = parseInt(sched.replace('Circuit ','')) - 1;
     const key = 'w'+wk+'c'+cNum;
@@ -765,8 +813,7 @@ function renderRuns() {
   let html = '';
   RUNS.forEach((r, wi) => {
     const sessions = [
-      {label:'Mon — easy run', desc:r.mon, key:'run_w'+wi+'_mon'},
-      {label:'Tue — structured run', desc:r.tue, key:'run_w'+wi+'_tue'},
+      {label:'Tue — easy run', desc:r.tue, key:'run_w'+wi+'_tue'},
       {label:'Thu — structured run', desc:r.thu, key:'run_w'+wi+'_thu'},
       {label:'Sat — long run', desc:r.sat, key:'run_w'+wi+'_sat'},
     ];
@@ -784,7 +831,8 @@ function renderRuns() {
         +'</div>';
     }).join('');
     html += '<div class="card" style="padding:4px 16px">'
-      +'<div style="font-size:14px;font-weight:600;color:var(--text);padding:12px 0 4px;border-bottom:0.5px solid var(--border);margin-bottom:4px">Week '+(wi+1)+'</div>'
+      +'<div style="font-size:14px;font-weight:600;color:var(--text);padding:12px 0 2px;border-bottom:0.5px solid var(--border);margin-bottom:4px">Week '+(wi+1)+'</div>'
+      +'<div style="font-size:11px;color:var(--text3);font-family:var(--mono);padding:6px 0 8px;border-bottom:0.5px solid var(--border);margin-bottom:4px">'+r.notes+'</div>'
       + inner + '</div>';
   });
   document.getElementById('run-list').innerHTML = html;
@@ -848,6 +896,59 @@ function renderProgress() {
       +'</div>';
   }
   document.getElementById('week-progress').innerHTML = wpHtml;
+}
+
+
+function exportData() {
+  try {
+    const dataStr = JSON.stringify(S, null, 2);
+    document.getElementById('export-text').value = dataStr;
+    document.getElementById('export-area').style.display = 'block';
+    document.getElementById('import-area').style.display = 'none';
+    document.getElementById('copy-confirm').style.display = 'none';
+  } catch(e) {
+    alert('Export failed: ' + e.message);
+  }
+}
+
+function copyExport() {
+  const text = document.getElementById('export-text');
+  text.select();
+  text.setSelectionRange(0, 99999);
+  try {
+    navigator.clipboard.writeText(text.value).then(() => {
+      document.getElementById('copy-confirm').style.display = 'block';
+    }).catch(() => {
+      document.execCommand('copy');
+      document.getElementById('copy-confirm').style.display = 'block';
+    });
+  } catch(e) {
+    document.execCommand('copy');
+    document.getElementById('copy-confirm').style.display = 'block';
+  }
+}
+
+function showImport() {
+  document.getElementById('import-area').style.display = 'block';
+  document.getElementById('export-area').style.display = 'none';
+  document.getElementById('import-confirm').style.display = 'none';
+}
+
+function importData() {
+  try {
+    const text = document.getElementById('import-text').value.trim();
+    if (!text) { alert('Paste your exported data first'); return; }
+    const parsed = JSON.parse(text);
+    S = Object.assign(S, parsed);
+    save();
+    const confirm = document.getElementById('import-confirm');
+    confirm.textContent = 'Data restored successfully — all your entries are back';
+    confirm.style.display = 'block';
+    document.getElementById('import-area').style.display = 'none';
+    renderProgress();
+  } catch(e) {
+    alert('Import failed — make sure you pasted the complete exported text');
+  }
 }
 
 if ('serviceWorker' in navigator) {
