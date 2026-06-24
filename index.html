@@ -429,11 +429,12 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
       <div class="week-row" id="week-btns"></div>
 
       <div class="section-label">Circuit</div>
-      <div class="ctabs" id="circuit-tabs">
+      <div class="ctabs" id="circuit-tabs" style="grid-template-columns:repeat(5,1fr)">
         <button class="ctab active" onclick="selectCircuit(0)">C 1</button>
         <button class="ctab" onclick="selectCircuit(1)">C 2</button>
         <button class="ctab" onclick="selectCircuit(2)">C 3</button>
         <button class="ctab" onclick="selectCircuit(3)">C 4</button>
+        <button class="ctab" onclick="selectCircuit(4)" style="font-size:10px">C 5</button>
       </div>
 
       <div class="rounds-bar">
@@ -565,6 +566,15 @@ const CIRCUITS = [
     {name:'Dumbbell swing',reps:'15',rest:'0 sec',def:'15 lbs'},
     {name:'Side plank',reps:'30 sec each',rest:'2 min',def:'Bodyweight'},
   ]},
+  { name:'Circuit 5 — Chest & Core (optional)', exercises:[
+    {name:'Dumbbell squeeze press',reps:'12',rest:'0 sec',def:'18–20 lbs each'},
+    {name:'Dumbbell chest fly',reps:'12',rest:'0 sec',def:'15 lbs each'},
+    {name:'Push-up',reps:'15',rest:'0 sec',def:'Bodyweight'},
+    {name:'Close-grip floor press',reps:'12',rest:'0 sec',def:'18 lbs each'},
+    {name:'Dumbbell pullover',reps:'12',rest:'0 sec',def:'18–20 lbs'},
+    {name:'Dumbbell swing',reps:'25',rest:'0 sec',def:'23 lbs'},
+    {name:'Plank to push-up',reps:'10',rest:'2 min',def:'Bodyweight'},
+  ]},
 ];
 
 const WEEK_ROUNDS = [4,4,5,5,6,6];
@@ -596,6 +606,10 @@ const TIPS = [
   'Pre-hydrate the night before run days — 16 oz before bed, 16 oz on waking.',
   'Dumbbell swing: hip snap sends the weight up — arms just connect hip to dumbbell.',
   'Fartlek this week: 2 blocks of 12 x 1 min hard / 1 min easy, full rest between blocks.',
+  'Circuit 5 chest tip — squeeze press: press dumbbells together throughout entire movement for upper chest activation.',
+  'Circuit 5 chest tip — chest fly: lower arms in wide arc until you feel a stretch, don\'t let elbows drop below shoulder level.',
+  'Circuit 5 chest tip — pullover: keep arms straight, lower dumbbell behind head toward floor, pull back over chest.',
+  'Circuit 5 replaces Circuit 3 every other week — same structure, 5 rounds, 2 min rest between rounds.',
 ]
 
 const DAY_SCHEDULE = {
@@ -775,8 +789,9 @@ function renderCircuits() {
   }
 
   document.querySelectorAll('.ctab').forEach((t, i) => {
-    const done = S.completedCircuits['w'+wk+'c'+i];
+    const done = i < 4 ? S.completedCircuits['w'+wk+'c'+i] : false;
     t.className = 'ctab' + (i===c?' active':'') + (done?' done':'');
+    if (i === 4) t.style.fontSize = '10px';
   });
 
   renderExercises();

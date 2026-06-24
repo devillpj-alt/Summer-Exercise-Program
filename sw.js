@@ -1,4 +1,4 @@
-const CACHE = 'exercise-v7';
+const CACHE = 'exercise-v9';
 const ASSETS = ['./index.html', './manifest.json'];
 
 self.addEventListener('install', e => {
