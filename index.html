@@ -68,6 +68,11 @@ body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFo
 .summary-week-label{font-size:11px;color:#6e7681;font-family:monospace;margin-bottom:4px;}
 .summary-run-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(48,54,61,0.13);}
 .note-text{font-size:11px;color:#6e7681;margin-top:10px;}
+.backup-btns{display:flex;gap:8px;margin-bottom:10px;}
+.backup-btn{flex:1;padding:10px;border-radius:8px;border:1px solid #30363d;background:#1c2128;color:#58a6ff;font-size:13px;font-weight:600;cursor:pointer;}
+.backup-btn.danger{color:#f78166;border-color:#f7816633;}
+.backup-textarea{width:100%;height:100px;padding:10px;border-radius:8px;border:1px solid #30363d;background:#1c2128;color:#8b949e;font-size:11px;font-family:monospace;resize:none;outline:none;margin-bottom:8px;}
+.backup-msg{font-size:12px;color:#3fb950;margin-top:4px;min-height:18px;}
 .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#161b22;border-top:1px solid #30363d;display:flex;padding:10px 0 20px;}
 .nav-btn{flex:1;background:none;border:none;color:#6e7681;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;}
 .nav-btn.active{color:#58a6ff;}
@@ -143,6 +148,16 @@ body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFo
   <div class="card">
     <div class="label" style="margin-bottom:12px;">RUN LOG SUMMARY</div>
     <div id="run-summary"></div>
+  </div>
+  <div class="card">
+    <div class="label" style="margin-bottom:12px;">BACKUP &amp; RESTORE</div>
+    <div class="backup-btns">
+      <button class="backup-btn" onclick="exportData()">📋 Export</button>
+      <button class="backup-btn" onclick="importData()">📥 Import</button>
+      <button class="backup-btn danger" onclick="clearData()">🗑 Clear</button>
+    </div>
+    <textarea class="backup-textarea" id="backup-text" placeholder="Tap Export to copy your data, or paste saved data here and tap Import..."></textarea>
+    <div class="backup-msg" id="backup-msg"></div>
   </div>
 </div>
 
@@ -478,6 +493,39 @@ function setWeigh(input) {
   state.weighIns[input.dataset.week] = input.value;
   input.classList.toggle("filled", !!input.value);
   saveState();
+}
+
+function exportData() {
+  const json = JSON.stringify(state, null, 2);
+  document.getElementById("backup-text").value = json;
+  navigator.clipboard.writeText(json).catch(()=>{});
+  document.getElementById("backup-msg").textContent = "✓ Data copied to clipboard!";
+  setTimeout(()=>document.getElementById("backup-msg").textContent="", 3000);
+}
+
+function importData() {
+  try {
+    const text = document.getElementById("backup-text").value.trim();
+    if (!text) { document.getElementById("backup-msg").textContent = "⚠ Paste your data first"; return; }
+    const parsed = JSON.parse(text);
+    state = Object.assign(state, parsed);
+    saveState();
+    document.getElementById("backup-msg").textContent = "✓ Data restored successfully!";
+    setTimeout(()=>{ document.getElementById("backup-msg").textContent=""; renderProgress(); }, 1500);
+  } catch(e) {
+    document.getElementById("backup-msg").textContent = "⚠ Invalid data — check and try again";
+  }
+}
+
+function clearData() {
+  if (!confirm("Clear all logged data? This cannot be undone.")) return;
+  state.weights = {};
+  state.completed = {};
+  state.runs = {};
+  state.weighIns = {};
+  saveState();
+  document.getElementById("backup-msg").textContent = "✓ Data cleared";
+  setTimeout(()=>{ document.getElementById("backup-msg").textContent=""; renderProgress(); renderCircuits(); }, 1500);
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────
