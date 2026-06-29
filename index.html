@@ -1,16 +1,492 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="theme-color" content="#0d1117" />
-    <title>Exercise Program</title>
-    <link rel="manifest" href="/manifest.json" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#0d1117"/>
+<title>Exercise Program</title>
+<link rel="manifest" href="/manifest.json"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:80px;}
+.header{padding:20px 16px 0;}
+.header-top{display:flex;justify-content:space-between;align-items:flex-start;}
+.app-title{font-size:22px;font-weight:700;letter-spacing:-0.5px;}
+.app-sub{font-size:13px;color:#8b949e;font-family:monospace;margin-top:2px;}
+.wk-badge{background:#1f6feb;border-radius:20px;padding:5px 14px;font-size:13px;font-weight:700;color:#fff;letter-spacing:1px;}
+.tabs{display:flex;margin-top:16px;border-bottom:1px solid #30363d;}
+.tab{flex:1;padding:10px 0;background:none;border:none;border-bottom:2px solid transparent;color:#8b949e;font-size:13px;font-weight:600;cursor:pointer;transition:color 0.2s;}
+.tab.active{color:#58a6ff;border-bottom-color:#58a6ff;}
+.content{padding:14px 16px;}
+.card{background:#161b22;border-radius:12px;border:1px solid #30363d;padding:14px;margin-bottom:10px;}
+.card-row{display:flex;justify-content:space-between;align-items:center;}
+.label{font-size:12px;color:#8b949e;font-family:monospace;letter-spacing:1px;}
+.progress-bar-bg{height:4px;background:#30363d;border-radius:2px;margin-top:7px;}
+.progress-bar{height:4px;border-radius:2px;background:#58a6ff;transition:width 0.4s;}
+.circuit-btns{display:flex;gap:6px;margin-bottom:14px;}
+.circuit-btn{flex:1;padding:8px 0;border-radius:8px;border:1.5px solid #30363d;background:#161b22;color:#8b949e;font-size:12px;font-weight:700;cursor:pointer;position:relative;transition:all 0.2s;}
+.circuit-btn.active{border-color:#3fb950;background:rgba(35,134,54,0.13);color:#3fb950;}
+.circuit-btn.done{border-color:#238636;background:rgba(35,134,54,0.07);color:#3fb950;}
+.circuit-btn .check{position:absolute;top:-4px;right:-2px;font-size:9px;}
+.focus-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.focus-label{font-size:11px;font-family:monospace;color:#6e7681;text-transform:uppercase;letter-spacing:1px;}
+.chest-badge{font-size:10px;background:rgba(188,140,255,0.13);color:#bc8cff;border:1px solid rgba(188,140,255,0.27);border-radius:4px;padding:1px 6px;font-weight:600;}
+.rounds-card{background:#161b22;border-radius:10px;border:1px solid #30363d;padding:10px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+.ex-list{background:#161b22;border-radius:12px;border:1px solid #30363d;overflow:hidden;margin-bottom:12px;}
+.ex-row{padding:13px 14px;border-bottom:1px solid #30363d;display:flex;justify-content:space-between;align-items:center;}
+.ex-row:last-child{border-bottom:none;}
+.ex-row.chest-ex{background:rgba(188,140,255,0.04);}
+.ex-name{font-size:15px;font-weight:500;display:flex;align-items:center;gap:6px;}
+.chest-dot{font-size:9px;color:#bc8cff;font-weight:700;}
+.ex-meta{font-size:12px;color:#8b949e;margin-top:2px;font-family:monospace;}
+.ex-right{text-align:right;}
+.ex-weight-label{font-size:11px;color:#6e7681;margin-bottom:4px;}
+.weight-input{width:60px;padding:5px 8px;border-radius:7px;border:1px solid #30363d;background:#1c2128;color:#e6edf3;font-size:14px;font-weight:600;text-align:center;outline:none;}
+.weight-input.filled{border-color:rgba(63,185,80,0.4);}
+.chest-note{background:rgba(188,140,255,0.07);border:1px solid rgba(188,140,255,0.2);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:12px;color:#bc8cff;}
+.complete-btn{width:100%;padding:14px;border-radius:10px;border:none;background:#1f6feb;color:#fff;font-weight:700;font-size:15px;cursor:pointer;}
+.complete-done{background:rgba(35,134,54,0.13);border:1px solid #3fb950;border-radius:10px;padding:14px;text-align:center;color:#3fb950;font-weight:700;font-size:15px;}
+.week-btns{display:flex;gap:5px;margin-bottom:14px;flex-wrap:wrap;}
+.week-btn{flex:1 0 28%;padding:7px 0;border-radius:8px;border:1.5px solid #30363d;background:#161b22;color:#8b949e;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+.week-btn.active{border-color:#58a6ff;background:rgba(31,111,235,0.2);color:#58a6ff;}
+.week-btn.done{border-color:#238636;background:rgba(35,134,54,0.07);color:#3fb950;}
+.run-card{background:#161b22;border-radius:12px;border:1px solid #30363d;padding:14px;margin-bottom:10px;}
+.run-card.done{border-color:rgba(63,185,80,0.33);}
+.run-day{font-size:11px;color:#6e7681;font-family:monospace;letter-spacing:1px;margin-bottom:4px;}
+.run-desc{font-size:15px;font-weight:600;margin-bottom:10px;}
+.run-inputs{display:flex;gap:8px;}
+.run-input{flex:1;padding:9px 10px;border-radius:8px;border:1px solid #30363d;background:#1c2128;color:#e6edf3;font-size:14px;outline:none;}
+.run-input.filled{border-color:rgba(63,185,80,0.4);}
+.run-saved{margin-top:8px;font-size:13px;color:#3fb950;font-family:monospace;font-weight:600;}
+.weigh-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #30363d;}
+.weigh-row:last-child{border-bottom:none;}
+.weigh-input{width:90px;padding:4px 8px;border-radius:7px;border:1px solid #30363d;background:#1c2128;color:#6e7681;font-size:14px;font-weight:400;text-align:right;outline:none;font-family:monospace;}
+.weigh-input.filled{border-color:rgba(63,185,80,0.4);color:#3fb950;font-weight:700;}
+.summary-week{margin-bottom:12px;}
+.summary-week-label{font-size:11px;color:#6e7681;font-family:monospace;margin-bottom:4px;}
+.summary-run-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(48,54,61,0.13);}
+.note-text{font-size:11px;color:#6e7681;margin-top:10px;}
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#161b22;border-top:1px solid #30363d;display:flex;padding:10px 0 20px;}
+.nav-btn{flex:1;background:none;border:none;color:#6e7681;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.nav-btn.active{color:#58a6ff;}
+.nav-icon{font-size:18px;}
+.nav-label{font-size:11px;font-weight:400;}
+.nav-btn.active .nav-label{font-weight:700;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="app-title">Exercise Program</div>
+      <div class="app-sub">5 rounds per circuit</div>
+    </div>
+    <div class="wk-badge">WK 5</div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('circuits')">⚡ Circuits</button>
+    <button class="tab" onclick="showTab('runs')">🏃 Runs</button>
+    <button class="tab" onclick="showTab('progress')">📈 Progress</button>
+  </div>
+</div>
+
+<div class="content" id="tab-circuits">
+  <!-- Progress bar -->
+  <div class="card">
+    <div class="card-row">
+      <span class="label">CIRCUITS COMPLETE</span>
+      <span id="circuit-progress-label" style="font-size:13px;font-weight:700;">0 / 4</span>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar" id="circuit-progress-bar" style="width:0%"></div></div>
+  </div>
+
+  <!-- Circuit selector -->
+  <div class="circuit-btns" id="circuit-btns"></div>
+
+  <!-- Focus -->
+  <div class="focus-row">
+    <span class="focus-label" id="circuit-focus"></span>
+    <span class="chest-badge">+ CHEST</span>
+  </div>
+
+  <!-- Rounds -->
+  <div class="rounds-card">
+    <span class="label">ROUNDS THIS WEEK</span>
+    <span style="font-size:14px;font-weight:700;">5 rounds</span>
+  </div>
+
+  <!-- Exercises -->
+  <div class="ex-list" id="ex-list"></div>
+
+  <!-- Chest note -->
+  <div class="chest-note">● <strong>Chest exercise</strong> — added to each circuit for balanced volume</div>
+
+  <!-- Complete button -->
+  <div id="complete-area"></div>
+</div>
+
+<div class="content" id="tab-runs" style="display:none">
+  <div class="week-btns" id="run-week-btns"></div>
+  <div class="card" id="run-week-info" style="margin-bottom:14px;"></div>
+  <div id="run-list"></div>
+</div>
+
+<div class="content" id="tab-progress" style="display:none">
+  <div class="card" style="margin-bottom:12px;">
+    <div class="label" style="margin-bottom:12px;">WEIGH-IN LOG</div>
+    <div id="weigh-list"></div>
+    <div class="note-text">Next weigh-in: Sunday morning after Week 4</div>
+  </div>
+  <div class="card">
+    <div class="label" style="margin-bottom:12px;">RUN LOG SUMMARY</div>
+    <div id="run-summary"></div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="nav-circuits" onclick="showTab('circuits')">
+    <span class="nav-icon">⚡</span><span class="nav-label">Circuits</span>
+  </button>
+  <button class="nav-btn" id="nav-runs" onclick="showTab('runs')">
+    <span class="nav-icon">🏃</span><span class="nav-label">Runs</span>
+  </button>
+  <button class="nav-btn" id="nav-progress" onclick="showTab('progress')">
+    <span class="nav-icon">📈</span><span class="nav-label">Progress</span>
+  </button>
+</nav>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+const CIRCUITS = [
+  {
+    id:1, name:"C 1", focus:"Lower + Push + Arms",
+    exercises:[
+      {name:"Dumbbell squat", reps:"15", rest:"0 sec", weight:"15 lbs each"},
+      {name:"Overhead press", reps:"15", rest:"0 sec", weight:"12 lbs each"},
+      {name:"Dumbbell squeeze press", reps:"15", rest:"0 sec", weight:"18–20 lbs each", chest:true},
+      {name:"Push-up renegade row", reps:"9 each side", rest:"0 sec", weight:"10 lbs each"},
+      {name:"Hammer curl", reps:"15", rest:"0 sec", weight:"12 lbs each"},
+      {name:"Dumbbell swing", reps:"28", rest:"0 sec", weight:"23 lbs (→25)"},
+      {name:"Triceps extension", reps:"15", rest:"2 min", weight:"10–12 lbs"},
+    ]
+  },
+  {
+    id:2, name:"C 2", focus:"Lower + Pull + Core",
+    exercises:[
+      {name:"Dumbbell lunge", reps:"15", rest:"0 sec", weight:"12 lbs each"},
+      {name:"Upright row", reps:"15", rest:"0 sec", weight:"10 lbs each"},
+      {name:"Dumbbell chest fly", reps:"15", rest:"0 sec", weight:"15 lbs each", chest:true},
+      {name:"Floor press", reps:"15", rest:"0 sec", weight:"15 lbs each"},
+      {name:"Bent-over row", reps:"15", rest:"0 sec", weight:"15 lbs each"},
+      {name:"Dumbbell swing", reps:"28", rest:"0 sec", weight:"23 lbs (→25)"},
+      {name:"Plank", reps:"33 sec", rest:"2 min", weight:"Bodyweight"},
+    ]
+  },
+  {
+    id:3, name:"C 3", focus:"Lower + Shoulder + Core",
+    exercises:[
+      {name:"Goblet squat", reps:"15", rest:"0 sec", weight:"20 lbs"},
+      {name:"Lateral raise", reps:"15", rest:"0 sec", weight:"8 lbs each"},
+      {name:"Close-grip floor press", reps:"15", rest:"0 sec", weight:"18 lbs each", chest:true},
+      {name:"Push-up", reps:"18", rest:"0 sec", weight:"Bodyweight"},
+      {name:"Single-arm row", reps:"11 each side", rest:"0 sec", weight:"15 lbs"},
+      {name:"Dumbbell swing", reps:"28", rest:"0 sec", weight:"23 lbs (→25)"},
+      {name:"Side bend", reps:"13 each side", rest:"2 min", weight:"15 lbs"},
+    ]
+  },
+  {
+    id:4, name:"C 4", focus:"Lower + Pull + Core",
+    exercises:[
+      {name:"Reverse lunge", reps:"11 each side", rest:"0 sec", weight:"12 lbs each"},
+      {name:"Dumbbell halo", reps:"11 each side", rest:"0 sec", weight:"8 lbs"},
+      {name:"Dumbbell pullover", reps:"15", rest:"0 sec", weight:"18–20 lbs", chest:true},
+      {name:"Diamond push-up", reps:"11", rest:"0 sec", weight:"Bodyweight"},
+      {name:"Reverse-grip bent-over row", reps:"15", rest:"0 sec", weight:"12 lbs each"},
+      {name:"Dumbbell swing", reps:"28", rest:"0 sec", weight:"23 lbs (→25)"},
+      {name:"Side plank", reps:"33 sec each", rest:"2 min", weight:"Bodyweight"},
+    ]
+  },
+];
+
+const ALL_WEEKS = [
+  {num:1, label:"Week 1", desc:"~14–17 mi · step back week as lifting starts",
+   runs:[
+    {day:"MON", type:"EASY RUN (BEFORE CIRCUIT)", desc:"Easy 3–5 mi · flat route · run first before circuit", miles:"", pace:""},
+    {day:"TUE", type:"EASY RUN", desc:"Easy 3–4 mi · Zone 2", miles:"3.21", pace:"8:21"},
+    {day:"THU", type:"STRUCTURED RUN", desc:"6×400m @ hard effort, 90 sec rest", miles:"3.0", pace:"8:21"},
+    {day:"SAT", type:"LONG RUN", desc:"Long run — 5 mi easy", miles:"5.01", pace:"9:29"},
+  ]},
+  {num:2, label:"Week 2", desc:"~15–18 mi · circuits hit 4 rounds",
+   runs:[
+    {day:"MON", type:"EASY RUN (BEFORE CIRCUIT)", desc:"Easy 3–5 mi · flat route · run first before circuit", miles:"", pace:""},
+    {day:"TUE", type:"EASY RUN", desc:"Easy 4 mi · Zone 2", miles:"4.01", pace:"8:49"},
+    {day:"THU", type:"STRUCTURED RUN", desc:"4×1 mi @ 10K effort, 2 min rest", miles:"4.0", pace:"8:40"},
+    {day:"SAT", type:"LONG RUN", desc:"Long run — 5–6 mi easy", miles:"6.01", pace:"9:03"},
+  ]},
+  {num:3, label:"Week 3", desc:"~17–19 mi · circuits go to 5 rounds",
+   runs:[
+    {day:"MON", type:"EASY RUN (BEFORE CIRCUIT)", desc:"Easy 3–5 mi · flat route · run first before circuit", miles:"4.01", pace:"9:06"},
+    {day:"TUE", type:"EASY RUN", desc:"Easy 4 mi · Zone 2", miles:"4.01", pace:"8:54"},
+    {day:"THU", type:"STRUCTURED RUN", desc:"Fartlek — 2 blocks of 12×1 min hard / 1 min easy", miles:"5.0", pace:"8:45"},
+    {day:"SAT", type:"LONG RUN", desc:"Long run — 6 mi easy", miles:"6.01", pace:"9:10"},
+  ]},
+  {num:4, label:"Week 4", desc:"~19–21 mi · strongest week",
+   runs:[
+    {day:"MON", type:"EASY RUN (BEFORE CIRCUIT)", desc:"Easy 3–5 mi · flat route · run first before circuit", miles:"4.01", pace:"8:43"},
+    {day:"TUE", type:"EASY RUN", desc:"Easy 4–5 mi · Zone 2", miles:"4.01", pace:"9:03"},
+    {day:"THU", type:"STRUCTURED RUN", desc:"3×1.5 mi @ 10K effort, 2 min rest", miles:"4.53", pace:"7:58"},
+    {day:"SAT", type:"LONG RUN", desc:"Long run — 7 mi easy", miles:"7.01", pace:"9:19"},
+  ]},
+  {num:5, label:"Week 5", desc:"Long run drops slightly · circuits hit 6 rounds",
+   runs:[
+    {day:"MON", type:"EASY RUN (BEFORE CIRCUIT)", desc:"Easy 3–5 mi · flat route · run first before circuit", miles:"", pace:""},
+    {day:"TUE", type:"EASY RUN", desc:"Easy 4 mi · Zone 2", miles:"", pace:""},
+    {day:"THU", type:"STRUCTURED RUN", desc:"Progression run — start easy, build to tempo by last mile", miles:"", pace:""},
+    {day:"SAT", type:"LONG RUN", desc:"Long run — 6 mi easy", miles:"", pace:""},
+  ]},
+  {num:6, label:"Week 6", desc:"~18–21 mi · peak long run, finish the program strong",
+   runs:[
+    {day:"MON", type:"EASY RUN (BEFORE CIRCUIT)", desc:"Easy 3–5 mi · flat route · run first before circuit", miles:"", pace:""},
+    {day:"TUE", type:"EASY RUN", desc:"Easy 4 mi · Zone 2", miles:"", pace:""},
+    {day:"THU", type:"STRUCTURED RUN", desc:"3 mi @ 10K race pace — short, fast, done", miles:"", pace:""},
+    {day:"SAT", type:"LONG RUN", desc:"Long run — 8 mi easy", miles:"", pace:""},
+  ]},
+];
+
+const WEIGH_INS = [
+  {week:"Wk 1", weight:""},
+  {week:"Wk 2", weight:""},
+  {week:"Wk 3", weight:""},
+  {week:"Wk 4", weight:"194.6"},
+  {week:"Wk 5", weight:""},
+  {week:"Wk 6", weight:""},
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+let state = {
+  activeTab: "circuits",
+  activeCircuit: 0,
+  activeRunWeek: 4,
+  weights: {},
+  completed: {},
+  runs: {},
+  weighIns: {},
+};
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem("fitness-v5");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      state = Object.assign(state, parsed);
+    }
+    // Pre-load historical run data
+    ALL_WEEKS.forEach((w, wi) => {
+      w.runs.forEach((r, ri) => {
+        const mk = `${w.num}-${ri}-miles`;
+        const pk = `${w.num}-${ri}-pace`;
+        if (r.miles && !state.runs[mk]) state.runs[mk] = r.miles;
+        if (r.pace && !state.runs[pk]) state.runs[pk] = r.pace;
+      });
+    });
+    // Pre-load weigh-ins
+    WEIGH_INS.forEach(w => {
+      if (w.weight && !state.weighIns[w.week]) state.weighIns[w.week] = w.weight;
+    });
+  } catch(e) {}
+}
+
+function saveState() {
+  try { localStorage.setItem("fitness-v5", JSON.stringify(state)); } catch(e) {}
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────
+function showTab(tab) {
+  state.activeTab = tab;
+  ["circuits","runs","progress"].forEach(t => {
+    document.getElementById("tab-"+t).style.display = t===tab ? "" : "none";
+    document.getElementById("nav-"+t).classList.toggle("active", t===tab);
+    document.querySelectorAll(".tab").forEach((el,i) => {
+      el.classList.toggle("active", ["circuits","runs","progress"][i]===tab);
+    });
+  });
+  if (tab==="circuits") renderCircuits();
+  if (tab==="runs") renderRuns();
+  if (tab==="progress") renderProgress();
+  saveState();
+}
+
+// ── CIRCUITS ──────────────────────────────────────────────────────────────
+function renderCircuits() {
+  const completed = state.completed;
+  const count = CIRCUITS.filter(c => completed[c.id]).length;
+
+  // Progress
+  document.getElementById("circuit-progress-label").textContent = count + " / 4";
+  document.getElementById("circuit-progress-label").style.color = count===4 ? "#3fb950" : "#e6edf3";
+  document.getElementById("circuit-progress-bar").style.width = (count/4*100)+"%";
+  document.getElementById("circuit-progress-bar").style.background = count===4 ? "#3fb950" : "#58a6ff";
+
+  // Circuit buttons
+  const btns = document.getElementById("circuit-btns");
+  btns.innerHTML = "";
+  CIRCUITS.forEach((c,i) => {
+    const btn = document.createElement("button");
+    btn.className = "circuit-btn" + (i===state.activeCircuit?" active":"") + (completed[c.id]?" done":"");
+    btn.innerHTML = c.name + (completed[c.id]?'<span class="check">✓</span>':"");
+    btn.onclick = () => { state.activeCircuit=i; renderCircuits(); };
+    btns.appendChild(btn);
+  });
+
+  const circuit = CIRCUITS[state.activeCircuit];
+  document.getElementById("circuit-focus").textContent = circuit.focus;
+
+  // Exercises
+  const list = document.getElementById("ex-list");
+  list.innerHTML = "";
+  circuit.exercises.forEach((ex,i) => {
+    const key = circuit.id+"-"+ex.name;
+    const val = state.weights[key] || "";
+    const row = document.createElement("div");
+    row.className = "ex-row" + (ex.chest?" chest-ex":"");
+    row.innerHTML = `
+      <div style="flex:1">
+        <div class="ex-name">${ex.name}${ex.chest?'<span class="chest-dot">●</span>':""}</div>
+        <div class="ex-meta">${ex.reps} · rest ${ex.rest}</div>
+      </div>
+      <div class="ex-right">
+        <div class="ex-weight-label">${ex.weight}</div>
+        <input class="weight-input${val?" filled":""}" type="number" value="${val}" placeholder="—" data-key="${key}" oninput="setWeight(this)"/>
+      </div>`;
+    list.appendChild(row);
+  });
+
+  // Complete button
+  const area = document.getElementById("complete-area");
+  if (completed[circuit.id]) {
+    area.innerHTML = '<div class="complete-done">✓ Marked complete</div>';
+  } else {
+    area.innerHTML = '<button class="complete-btn" onclick="markComplete()">Mark circuit complete</button>';
+  }
+}
+
+function setWeight(input) {
+  const key = input.dataset.key;
+  state.weights[key] = input.value;
+  input.classList.toggle("filled", !!input.value);
+  saveState();
+}
+
+function markComplete() {
+  const circuit = CIRCUITS[state.activeCircuit];
+  state.completed[circuit.id] = true;
+  saveState();
+  renderCircuits();
+}
+
+// ── RUNS ──────────────────────────────────────────────────────────────────
+function renderRuns() {
+  // Week buttons
+  const wbtns = document.getElementById("run-week-btns");
+  wbtns.innerHTML = "";
+  ALL_WEEKS.forEach((w,i) => {
+    const allDone = w.runs.every((_,ri) => state.runs[w.num+"-"+ri+"-miles"]);
+    const btn = document.createElement("button");
+    btn.className = "week-btn"+(i===state.activeRunWeek?" active":"")+(allDone?" done":"");
+    btn.textContent = "Wk "+w.num;
+    btn.onclick = () => { state.activeRunWeek=i; renderRuns(); };
+    wbtns.appendChild(btn);
+  });
+
+  const wk = ALL_WEEKS[state.activeRunWeek];
+  document.getElementById("run-week-info").innerHTML =
+    `<div class="label" style="margin-bottom:2px;">${wk.label.toUpperCase()}</div><div style="font-size:14px;font-weight:600;">${wk.desc}</div>`;
+
+  const list = document.getElementById("run-list");
+  list.innerHTML = "";
+  wk.runs.forEach((run,i) => {
+    const mk = wk.num+"-"+i+"-miles";
+    const pk = wk.num+"-"+i+"-pace";
+    const mi = state.runs[mk]||"";
+    const pace = state.runs[pk]||"";
+    const done = mi && pace;
+    const card = document.createElement("div");
+    card.className = "run-card"+(done?" done":"");
+    card.innerHTML = `
+      <div class="run-day">${run.day} — ${run.type}</div>
+      <div class="run-desc">${run.desc}</div>
+      <div class="run-inputs">
+        <input class="run-input${mi?" filled":""}" type="number" step="0.01" value="${mi}" placeholder="miles" data-mk="${mk}" oninput="setRun(this,'miles')"/>
+        <input class="run-input${pace?" filled":""}" type="text" value="${pace}" placeholder="pace" data-pk="${pk}" oninput="setRun(this,'pace')"/>
+      </div>
+      ${done?`<div class="run-saved">✓ ${mi} mi · ${pace}/mi</div>`:""}`;
+    list.appendChild(card);
+  });
+}
+
+function setRun(input, field) {
+  const key = field==="miles" ? input.dataset.mk : input.dataset.pk;
+  state.runs[key] = input.value;
+  input.classList.toggle("filled", !!input.value);
+  saveState();
+  // Re-render to update saved line and done state
+  setTimeout(renderRuns, 100);
+}
+
+// ── PROGRESS ──────────────────────────────────────────────────────────────
+function renderProgress() {
+  // Weigh-ins
+  const wl = document.getElementById("weigh-list");
+  wl.innerHTML = "";
+  WEIGH_INS.forEach((w,i) => {
+    const val = state.weighIns[w.week]||"";
+    const row = document.createElement("div");
+    row.className = "weigh-row";
+    row.innerHTML = `
+      <span style="font-size:13px;color:#8b949e;">${w.week}</span>
+      <input class="weigh-input${val?" filled":""}" type="number" step="0.1" value="${val}" placeholder="— lbs" data-week="${w.week}" oninput="setWeigh(this)"/>`;
+    wl.appendChild(row);
+  });
+
+  // Run summary
+  const rs = document.getElementById("run-summary");
+  rs.innerHTML = "";
+  ALL_WEEKS.forEach(w => {
+    const logged = w.runs.filter((_,i) => state.runs[w.num+"-"+i+"-miles"]);
+    if (!logged.length) return;
+    const div = document.createElement("div");
+    div.className = "summary-week";
+    let html = `<div class="summary-week-label">${w.label.toUpperCase()}</div>`;
+    w.runs.forEach((r,i) => {
+      const mi = state.runs[w.num+"-"+i+"-miles"];
+      const pace = state.runs[w.num+"-"+i+"-pace"];
+      if (!mi) return;
+      html += `<div class="summary-run-row">
+        <span style="font-size:12px;color:#8b949e;">${r.day}</span>
+        <span style="font-size:12px;color:#3fb950;font-family:monospace;">${mi} mi · ${pace}/mi</span>
+      </div>`;
+    });
+    div.innerHTML = html;
+    rs.appendChild(div);
+  });
+}
+
+function setWeigh(input) {
+  state.weighIns[input.dataset.week] = input.value;
+  input.classList.toggle("filled", !!input.value);
+  saveState();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+loadState();
+renderCircuits();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
+</script>
+</body>
 </html>
